@@ -1,3 +1,4 @@
+import { isIsoDate } from "@/engine/time";
 import type { HillId, IsoDate, UserPrefs } from "@/engine/types";
 import type { Db } from "./db";
 import { countLogged, type ActionResult } from "./settings";
@@ -8,7 +9,6 @@ export interface LogEntry {
   hill: HillId;
 }
 
-const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
 const NAMES: Record<HillId, string> = { whistler: "Whistler", baker: "Baker" };
 
 export function listLog(db: Db, userId: string): LogEntry[] {
@@ -26,7 +26,7 @@ export function logDay(
   hill: string,
 ): ActionResult {
   if (hill !== "whistler" && hill !== "baker") return { ok: false, error: "Choose Whistler or Baker" };
-  if (!ISO_RE.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00Z`))) {
+  if (!isIsoDate(date)) {
     return { ok: false, error: "Choose a date" };
   }
   if (date > today) return { ok: false, error: "You can only log days that have happened" };

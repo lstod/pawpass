@@ -25,6 +25,7 @@ describe("logDay", () => {
     ["2026-11-20", "whistler", "That date is outside your season (2026-11-21 to 2027-04-10)"],
     ["2026-12-04", "baker", "Baker wasn't open yet on 2026-12-04 (opens 2026-12-05)"],
     ["2026-12-05", "snowmobile", "Choose Whistler or Baker"],
+    ["2026-02-30", "whistler", "Choose a date"],
   ])("rejects %s at %s", (date, hill, error) => {
     expect(logDay(db, "u1", prefs, today, date, hill)).toEqual({ ok: false, error });
     expect(listLog(db, "u1")).toHaveLength(0);
