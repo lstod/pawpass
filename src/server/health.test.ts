@@ -17,11 +17,14 @@ describe("createHealthHandler", () => {
 
   it("returns 500 without error details when the probe fails", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const res = await createHealthHandler(() =>
-      Promise.reject(new Error("could not load native module")),
-    )();
-    expect(res.status).toBe(500);
-    expect(await res.json()).toEqual({ ok: false });
-    spy.mockRestore();
+    try {
+      const res = await createHealthHandler(() =>
+        Promise.reject(new Error("could not load native module")),
+      )();
+      expect(res.status).toBe(500);
+      expect(await res.json()).toEqual({ ok: false });
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
