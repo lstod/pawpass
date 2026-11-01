@@ -47,6 +47,20 @@ describe("refreshOnce", () => {
     expect(readForecastMeta(db)).toMatchObject({ lastErrorAt: "2026-11-01T21:00:00.000Z", lastError: "503 from upstream" });
     expect(lines).toHaveLength(1);
   });
+
+  it("drops a day the newest fetch no longer has, but keeps days before it", async () => {
+    await refreshOnce(db, {
+      fetchLive: () =>
+        Promise.resolve({
+          whistler: { "2026-10-31": day, "2026-11-07": day, "2026-11-08": day },
+          baker: { "2026-11-07": day },
+        }),
+    });
+    await refreshOnce(db, {
+      fetchLive: () => Promise.resolve({ whistler: { "2026-11-07": day }, baker: { "2026-11-07": day } }),
+    });
+    expect(Object.keys(readForecasts(db).whistler).sort()).toEqual(["2026-10-31", "2026-11-07"]);
+  });
 });
 
 describe("startRefresh", () => {

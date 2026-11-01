@@ -17,7 +17,7 @@ export interface ForecastMeta {
   lastError: string | null;
 }
 
-/** Fetches the live forecast once and upserts it; a failure leaves existing rows untouched. */
+/** Fetches the live forecast once and replaces the rows it covers; a failure leaves existing rows untouched. */
 export async function refreshOnce(db: Db, deps: RefreshDeps = {}): Promise<boolean> {
   const now = (deps.now ?? (() => new Date()))().toISOString();
   try {
@@ -26,8 +26,11 @@ export async function refreshOnce(db: Db, deps: RefreshDeps = {}): Promise<boole
       `INSERT INTO forecast_day (hill, date, weather_json, fetched_at) VALUES (?, ?, ?, ?)
        ON CONFLICT (hill, date) DO UPDATE SET weather_json = excluded.weather_json, fetched_at = excluded.fetched_at`,
     );
+    const clearFrom = db.prepare("DELETE FROM forecast_day WHERE hill = ? AND date >= ?");
     db.transaction(() => {
       for (const hill of Object.keys(byHill) as HillId[]) {
+        const dates = Object.keys(byHill[hill]).sort();
+        if (dates.length > 0) clearFrom.run(hill, dates[0]);
         for (const [date, w] of Object.entries(byHill[hill])) upsert.run(hill, date, JSON.stringify(w), now);
       }
       db.prepare("UPDATE forecast_meta SET last_ok_at = ? WHERE id = 1").run(now);
