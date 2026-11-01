@@ -1,26 +1,10 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { getViewer } from "@/server/session";
 
-export default function Home() {
-  return (
-    <main className="flex flex-1 items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>PawPass</CardTitle>
-          <CardDescription>Pass or Paws</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>
-            Is this weekend worth a ski day, or does the dog get it? The planner
-            is on its way.
-          </p>
-        </CardContent>
-      </Card>
-    </main>
-  );
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const viewer = await getViewer();
+  if (!viewer) redirect("/login");
+  redirect(viewer.onboardedAt ? "/weekend" : "/welcome");
 }
