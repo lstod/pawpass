@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "fetch-weather": "tsx scripts/fetch-weather.ts",
+    "check-data": "tsx scripts/check-data.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
