@@ -20,23 +20,23 @@ describe("validateSettings", () => {
     [{ whistlerDays: -1 }, "Whistler days must be between 0 and 20"],
     [{ whistlerDays: 2.5 }, "Whistler days must be between 0 and 20"],
     [{ bakerDays: 11 }, "Baker days must be between 0 and 10"],
-    [{ firstSkiDay: "1999-12-31" }, "First ski day must be a date between 2000-01-01 and 2100-12-31"],
-    [{ firstSkiDay: "2026-02-30" }, "First ski day must be a date between 2000-01-01 and 2100-12-31"],
-    [{ lastSkiDay: "2101-01-01" }, "Last ski day must be a date between 2000-01-01 and 2100-12-31"],
+    [{ firstSkiDay: "1999-12-31" }, "First ski day must be a date between 2000 and 2100"],
+    [{ firstSkiDay: "2026-02-30" }, "First ski day must be a date between 2000 and 2100"],
+    [{ lastSkiDay: "2101-01-01" }, "Last ski day must be a date between 2000 and 2100"],
     [{ lastSkiDay: "2026-11-21" }, "Last ski day must be after your first ski day"],
-    [{ lastSkiDay: "2027-11-23" }, "Last ski day must be within 366 days of your first ski day"],
+    [{ lastSkiDay: "2027-11-23" }, "Last ski day must be within a year of your first ski day"],
     [{ whistlerOpenDate: "2027-04-11" }, "Whistler opening date must be on or before your last ski day"],
-    [{ whistlerOpenDate: "nope" }, "Whistler opening date must be a date between 2000-01-01 and 2100-12-31"],
+    [{ whistlerOpenDate: "nope" }, "Whistler opening date must be a date between 2000 and 2100"],
     [{ bakerOpenDate: "2027-04-11" }, "Baker opening date must be on or before your last ski day"],
-    [{ bakerOpenDate: "1999-01-01" }, "Baker opening date must be a date between 2000-01-01 and 2100-12-31"],
+    [{ bakerOpenDate: "1999-01-01" }, "Baker opening date must be a date between 2000 and 2100"],
     [{ whistlerLowBand: "summit" }, "Whistler terrain must be base or mid-mountain"],
-    [{ visibilityPref: "foggy" }, "Visibility must be powder, balanced or bluebird"],
+    [{ visibilityPref: "foggy" }, "Visibility must be one of powder, balanced or bluebird"],
     [{ dogFloor: 150 }, "Dog floor must be between 0 and 100"],
     [{ dogFloor: "" }, "Dog floor must be between 0 and 100"],
     [{ bakerTravelPenalty: 51 }, "Baker travel penalty must be between 0 and 50"],
-    [{ avyPenaltyWhistler: 51 }, "Whistler avalanche-control penalty must be between 0 and 50"],
-    [{ avyPenaltyBaker: -5 }, "Baker avalanche-control penalty must be between 0 and 50"],
-    [{ bakerTicketUsd: 501 }, "Baker ticket must be between 0 and 500 USD"],
+    [{ avyPenaltyWhistler: 51 }, "Avalanche-control penalty must be between 0 and 50"],
+    [{ avyPenaltyBaker: -5 }, "Avalanche-control penalty must be between 0 and 50"],
+    [{ bakerTicketUsd: 501 }, "Baker ticket must be between 0 and 500"],
   ] as [SettingsInput, string][])("rejects %j", (input, error) => {
     expect(check(input)).toEqual({ ok: false, error });
   });
@@ -54,11 +54,11 @@ describe("validateSettings", () => {
     const logged = () => ({ whistler: 3, baker: 2 });
     expect(check({ whistlerDays: 2 }, logged)).toEqual({
       ok: false,
-      error: "Whistler days can't be below the 3 you've already logged",
+      error: "You've already logged 3 Whistler days",
     });
     expect(check({ bakerDays: 1 }, logged)).toEqual({
       ok: false,
-      error: "Baker days can't be below the 2 you've already logged",
+      error: "You've already logged 2 Baker days",
     });
   });
 });
@@ -95,7 +95,7 @@ describe("saveSettings", () => {
     );
     expect(saveSettings(db, "u1", { whistlerDays: 1 })).toEqual({
       ok: false,
-      error: "Whistler days can't be below the 2 you've already logged",
+      error: "You've already logged 2 Whistler days",
     });
   });
 });

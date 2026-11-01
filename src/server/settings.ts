@@ -120,7 +120,7 @@ function int(value: unknown, min: number, max: number, message: string): number 
 function date(value: unknown, name: string): IsoDate {
   const s = typeof value === "string" ? value.trim() : "";
   if (!isRealDate(s) || s < MIN_DATE || s > MAX_DATE) {
-    throw new Invalid(`${name} must be a date between 2000-01-01 and 2100-12-31`);
+    throw new Invalid(`${name} must be a date between 2000 and 2100`);
   }
   return s;
 }
@@ -143,7 +143,7 @@ export function validateSettings(
     const lastSkiDay = date(pick(input, "lastSkiDay", current.lastSkiDay), "Last ski day");
     if (lastSkiDay <= firstSkiDay) throw new Invalid("Last ski day must be after your first ski day");
     if (dayDiff(firstSkiDay, lastSkiDay) > 366) {
-      throw new Invalid("Last ski day must be within 366 days of your first ski day");
+      throw new Invalid("Last ski day must be within a year of your first ski day");
     }
     const whistlerOpenDate = date(pick(input, "whistlerOpenDate", current.whistlerOpenDate), "Whistler opening date");
     if (whistlerOpenDate > lastSkiDay) {
@@ -157,18 +157,18 @@ export function validateSettings(
     const done = logged(firstSkiDay, lastSkiDay);
     const whistlerDays = int(pick(input, "whistlerDays", current.whistlerDays), 0, 20, "Whistler days must be between 0 and 20");
     if (whistlerDays < done.whistler) {
-      throw new Invalid(`Whistler days can't be below the ${done.whistler} you've already logged`);
+      throw new Invalid(`You've already logged ${done.whistler} Whistler days`);
     }
     const bakerDays = int(pick(input, "bakerDays", current.bakerDays), 0, 10, "Baker days must be between 0 and 10");
     if (bakerDays < done.baker) {
-      throw new Invalid(`Baker days can't be below the ${done.baker} you've already logged`);
+      throw new Invalid(`You've already logged ${done.baker} Baker days`);
     }
 
     const band = pick(input, "whistlerLowBand", current.whistlerLowBand);
     if (band !== "base" && band !== "mid") throw new Invalid("Whistler terrain must be base or mid-mountain");
     const vis = pick(input, "visibilityPref", current.visibilityPref);
     if (vis !== "powder" && vis !== "balanced" && vis !== "bluebird") {
-      throw new Invalid("Visibility must be powder, balanced or bluebird");
+      throw new Invalid("Visibility must be one of powder, balanced or bluebird");
     }
 
     const dogFloor = int(pick(input, "dogFloor", current.dogFloor), 0, 100, "Dog floor must be between 0 and 100");
@@ -178,18 +178,18 @@ export function validateSettings(
     );
     const avyPenaltyWhistler = int(
       pick(input, "avyPenaltyWhistler", current.avyPenaltyWhistler), 0, 50,
-      "Whistler avalanche-control penalty must be between 0 and 50",
+      "Avalanche-control penalty must be between 0 and 50",
     );
     const avyPenaltyBaker = int(
       pick(input, "avyPenaltyBaker", current.avyPenaltyBaker), 0, 50,
-      "Baker avalanche-control penalty must be between 0 and 50",
+      "Avalanche-control penalty must be between 0 and 50",
     );
 
     const ticket = pick(input, "bakerTicketUsd", current.bakerTicketUsd);
     const bakerTicketUsd =
       ticket === null || ticket === undefined || (typeof ticket === "string" && ticket.trim() === "")
         ? null
-        : int(ticket, 0, 500, "Baker ticket must be between 0 and 500 USD");
+        : int(ticket, 0, 500, "Baker ticket must be between 0 and 500");
 
     return {
       ok: true,
