@@ -190,13 +190,11 @@ export function Walkthrough({ prefs }: { prefs: UserPrefs }) {
               Back
             </Button>
           ) : null}
-          {!last ? (
-            <form action={finishOnboarding}>
-              <Button type="submit" variant="ghost" disabled={pending}>
-                Skip
-              </Button>
-            </form>
-          ) : null}
+          <form action={finishOnboarding}>
+            <Button type="submit" variant="ghost" disabled={pending}>
+              Skip
+            </Button>
+          </form>
         </div>
         {last ? (
           <form action={finishOnboarding}>
