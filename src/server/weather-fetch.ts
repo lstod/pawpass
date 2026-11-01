@@ -109,7 +109,11 @@ export async function fetchHillSeries(
 }
 
 /** Live ECMWF forecast for both hills. Days with any null hour in their windows are left out. */
-export async function fetchLiveForecast(fetchFn: FetchFn = fetch): Promise<Record<HillId, WeatherByDate>> {
+const FETCH_TIMEOUT_MS = 30_000;
+
+const fetchWithTimeout: FetchFn = (url) => fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+
+export async function fetchLiveForecast(fetchFn: FetchFn = fetchWithTimeout): Promise<Record<HillId, WeatherByDate>> {
   const out = {} as Record<HillId, WeatherByDate>;
   for (const hill of HILL_IDS) {
     const series = await fetchHillSeries(hill, async (elevation) => {

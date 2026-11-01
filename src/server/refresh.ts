@@ -64,8 +64,18 @@ export function readForecastMeta(db: Db): ForecastMeta {
 const TIMER_KEY = Symbol.for("pawpass.refreshTimer");
 type GlobalWithTimer = typeof globalThis & { [TIMER_KEY]?: ReturnType<typeof setInterval> };
 
+const BUSY_KEY = Symbol.for("pawpass.refreshBusy");
+type GlobalWithBusy = typeof globalThis & { [BUSY_KEY]?: boolean };
+
 async function tick(db: Db, deps: RefreshDeps): Promise<void> {
-  await refreshOnce(db, deps);
+  const g = globalThis as GlobalWithBusy;
+  if (g[BUSY_KEY]) return;
+  g[BUSY_KEY] = true;
+  try {
+    await refreshOnce(db, deps);
+  } finally {
+    g[BUSY_KEY] = false;
+  }
   try {
     pruneDemoUsers(db, (deps.now ?? (() => new Date()))());
   } catch (e) {
