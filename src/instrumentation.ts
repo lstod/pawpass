@@ -3,5 +3,8 @@ export async function register() {
   const { getDb } = await import("./server/db");
   const { getAuth } = await import("./server/auth");
   const { bootstrapSchema } = await import("./server/schema");
-  await bootstrapSchema(getDb(), getAuth());
+  const { pruneDemoUsers } = await import("./server/demo");
+  const db = getDb();
+  await bootstrapSchema(db, getAuth());
+  pruneDemoUsers(db, new Date());
 }
